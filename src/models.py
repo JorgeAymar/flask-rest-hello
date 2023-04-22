@@ -6,7 +6,6 @@ from eralchemy2 import render_er
 
 db = SQLAlchemy()
 
-
 class Customers(db.Model):
     __tablename__ = 'customers'
     # Here we define columns for the table.
@@ -26,26 +25,6 @@ class Customers(db.Model):
             "isActive": self.isActive
         }
 
-class Favoritos(db.Model): 
-    __tablename__ = 'favoritos'
-    favoritoID = db.Column(db.Integer, primary_key=True)
-    customer_ID = db.Column(db.Integer, ForeignKey('customers.customerID'))
-    characterID = db.Column(db.Integer, ForeignKey('characters.characterID'))
-    planetID = db.Column(db.Integer, ForeignKey('planets.planetID'))
-    isActive = db.Column(db.Boolean, unique=False, nullable=True)
-    customer = relationship(Customers)
-
-    def __repr__(self):
-        return '<Favoitos %r>' % self.name
-    
-    def serialize(self):
-        return {
-            "favoritoID": self.favoritosID,
-            "customerID": self.name,
-            "characterID": self.email,
-            "planetID": self.isActive
-        }
-    
 class Characters(db.Model): 
     __tablename__ = 'characters'
     characterID = db.Column(db.Integer, primary_key=True)
@@ -58,7 +37,22 @@ class Characters(db.Model):
     skinColor = db.Column(db.String(50), unique=False, nullable=True)
     homeworld = db.Column(db.String(50), unique=False, nullable=True)
     categoryID = db.Column(db.Integer, ForeignKey('category.categoryID'))
-    favoritos = relationship(Favoritos)
+
+    def __repr__(self):
+        return '<Characters %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "characterID": self.characterID,
+            "name": self.name,
+            "birthYear": self.birthYear,
+            "height": self.height,
+            "mass": self.mass,
+            "gender": self.gender,
+            "hairColor": self.hairColor,
+            "skinColor": self.skinColor,
+            "homeworld": self.homeworld                                                            
+        }
 
 class Planets(db.Model): 
     __tablename__ = 'planets'
@@ -73,15 +67,76 @@ class Planets(db.Model):
     surfaceWater = db.Column(db.String(50), unique=False, nullable=True)
     climate = db.Column(db.String(50), unique=False, nullable=True)
     categoryID = db.Column(db.Integer, ForeignKey('category.categoryID'))
-    favoritos = relationship(Favoritos)
+
+    def __repr__(self):
+        return '<Planets %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "planetID": self.planetID,
+            "name": self.name,
+            "population": self.population,
+            "orbitalPeriod": self.orbitalPeriod,
+            "diameter": self.diameter,
+            "gravity": self.gravity,            
+            "terrainGlasslands": self.terrainGlasslands,
+            "surfaceWater": self.surfaceWater,
+            "climate": self.climate              
+        }
+    
+class FavCharacters(db.Model): 
+    __tablename__ = 'favcharacters'
+    favoritoID = db.Column(db.Integer, primary_key=True)
+    customerID = db.Column(db.Integer, ForeignKey('customers.customerID'))
+    characterID = db.Column(db.Integer, ForeignKey('characters.characterID'))
+    rel_customer = relationship(Customers)
+    rel_character = relationship(Characters)
+
+    def __repr__(self):
+        return '<FavCharacters %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "favoritoID": self.favoritoID,
+            "customerID": self.customerID,
+            "characterID": self.characterID,
+        }
+
+class FavPlanets(db.Model): 
+    __tablename__ = 'favplanets'
+    favoritoID = db.Column(db.Integer, primary_key=True)
+    customerID = db.Column(db.Integer, ForeignKey('customers.customerID'))
+    planetID = db.Column(db.Integer, ForeignKey('planets.planetID'))
+    rel_customer = relationship(Customers)
+    rel_planet = relationship(Planets)
+
+    def __repr__(self):
+        return '<FavPlanets %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "favoritoID": self.favoritoID,
+            "customerID": self.customerID,
+            "planetID": self.planetID,
+        }
+    
 
 class Category(db.Model): 
     __tablename__ = 'category'
     categoryID = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
-    planets = relationship(Planets)
-    characters = relationship(Characters)
+    rel_planets = relationship(Planets)
+    rel_characters = relationship(Characters)
 
+    def __repr__(self):
+        return '<Category %r>' % self.name
+    
+    def serialize(self):
+        return {
+            "categoryID": self.categoryID,
+            "name": self.name
+        }
+    
     def to_dict(self):
         return {}
  
